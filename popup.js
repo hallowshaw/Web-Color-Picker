@@ -13,17 +13,19 @@ btn.addEventListener('click', async () => {
             target: { tabId: tab.id },
             function: pickColor,
         },
-        async (injectionResults) => {
+        (injectionResults) => {
             const [data] = injectionResults;
-            if (data.result) {
+            if (data && data.result) {
                 const color = data.result.sRGBHex;
                 colorGrid.style.backgroundColor = color;
                 colorValue.innerText = color;
                 try {
-                    await navigator.clipboard.writeText(color);
+                    navigator.clipboard.writeText(color);
                 } catch (err) {
-                    console.error(err);
+                    console.error('Failed to copy color to clipboard', err);
                 }
+            } else {
+                console.error('No color picked');
             }
         }
     );
@@ -31,10 +33,10 @@ btn.addEventListener('click', async () => {
 
 async function pickColor() {
     try {
-        // Picker
         const eyeDropper = new EyeDropper();
         return await eyeDropper.open();
     } catch (err) {
-        console.error(err);
+        console.error('EyeDropper failed: ', err);
+        return { sRGBHex: null };  // Return a fallback value
     }
 }
